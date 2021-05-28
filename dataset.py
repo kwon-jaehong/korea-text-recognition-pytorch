@@ -61,39 +61,57 @@ class custom_dataset(Dataset):
         lines = f.readlines()
         f.close()
         lines.sort(key=len)
+        
+        
+        ## txt 파일 읽었을때 줄바꿈 \n 문자열 제거
         for i,line in enumerate(lines):
             lines[i] = line.replace('\n','')
-        
+            
+            
         self.dict = lines
         self.len_dict = len(lines)
+        
+        ## 전체 데이터셋의 수는 문장수 * 폰트 파일갯수
+        self.dataset_len = self.len_dict*len(self.font_list)
+        
+
 
     def __len__(self):
-        return self.len_dict
+        return self.dataset_len
     
     def __getitem__(self, index):
-        return index
+        
+        ## 적용할 폰트와 문장의 주소(index)를 구함
+        font_index,dict_index = divmod(index,self.len_dict)
+
+
+        img = self.create_img(self.dict[dict_index],self.font_list[font_index])     
+        
+        text = self.dict[dict_index]
+        
+        return img,text
         # 딕트를 기준으로 이미지를 생성 이때는 정상 이미지여야함
     
     
-    
+    ## 
+    def create_img(self,text,font_file):
+        
+        temp = generate_text_img(text,os.path.join(self.font_path,font_file))
+        cos_v = rnd.choice([True, False])
+        cos_h = rnd.choice([True, False])
+        sin_v = rnd.choice([True, False])
+        sin_h = rnd.choice([True, False])
+        distorted_img = cos(temp,vertical=cos_v,horizontal=cos_h)
+        distorted_img = sin(distorted_img,vertical=sin_v,horizontal=sin_h)
+        
+        
+        ## RGBA 채널 PIL이미지를 RGB로 저장하기 위함
+        background = Image.new("RGB", distorted_img.size, (255, 255, 255))
+        background.paste(distorted_img, mask=distorted_img.split()[3]) # 3 is the alpha channel    
 
-# class make_custom_dataset():
-#     def __init__(self,dict_path="./dict/dict.txt",font_path="./font"):        
-#         self.font_list = os.listdir(font_path)
-#         self.dict_list = load_dict_file(dict_path)
-      
+        
+        return background
 
-    
-#     def load_dict_file(path):
-#         f = open(path, 'r')
-#         lines = f.readlines()
-#         f.close()
-#         lines.sort(key=len)
-
-#         return lines
-    
-    
-    
     
     
     
@@ -108,8 +126,7 @@ def generate_text_img(text,font):
     ## 빈칸 일경우 너비 설정
     space_width = 2
     
-
-    image_font = ImageFont.truetype(font = font, size = 40)
+    image_font = ImageFont.truetype(font = font, size = 50)
     words = text.split(' ')
     space_width = image_font.getsize(' ')[0] * space_width
     words_width = [image_font.getsize(w)[0] for w in words]
@@ -121,14 +138,9 @@ def generate_text_img(text,font):
     txt_draw = ImageDraw.Draw(txt_img)
     
     
-#     text_color = "black,red"
-#     colors = [ImageColor.getrgb(c) for c in text_color.split(',')]    
     ## 흰색이 나오면 안되니 픽셀 255,255,127 사이값이 랜덤하게 나옴
     colors = [(0, 0, 0), (255, 255, 127)]
-#     print(colors)
-    
     c1, c2 = colors[0], colors[-1]
-
     fill = (
         rnd.randint(min(c1[0], c2[0]), max(c1[0], c2[0])),
         rnd.randint(min(c1[1], c2[1]), max(c1[1], c2[1])),
@@ -140,6 +152,8 @@ def generate_text_img(text,font):
     return txt_img
 
 
+
+## 이미지 왜곡 함수
 def _apply_func_distorsion(image, vertical, horizontal, max_offset, func):
     # Nothing to do!
     if not vertical and not horizontal:

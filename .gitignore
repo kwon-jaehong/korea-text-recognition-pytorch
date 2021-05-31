@@ -1,3 +1,9 @@
 __pycache__/
 .ipynb_checkpoints/
 font_full
+./dict/nia_refine.txt
+./dict/nia_refine_concat.txt
+*.pth
+*.pt
+./log_val.txt
+./log_train.txt

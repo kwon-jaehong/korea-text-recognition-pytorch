@@ -7,3 +7,4 @@ font_full
 *.pt
 ./log_val.txt
 ./log_train.txt
+./log

@@ -70,7 +70,11 @@ class Model(nn.Module):
         """ Transformation stage """
         if not self.stages['Trans'] == "None":
             input = self.Transformation(input)
-
+#         print("FE 전 쉐이프")
+#         print(visual_feature.shape)
+        
+           
+            
         """ Feature extraction stage """
         visual_feature = self.FeatureExtraction(input)
         visual_feature = self.AdaptiveAvgPool(visual_feature.permute(0, 3, 1, 2))  # [b, c, h, w] -> [b, w, c, h]
@@ -102,6 +106,8 @@ class Model(nn.Module):
             ## 어텐션 포워드로 들어감
             # print(contextual_feature.shape)
             # torch.Size([768, 26, 256]) 배치사이즈 * 문자열 최대길이+1 * bilstm 아웃풋 256
+#             print(type(text),text.shape)
+#             print(type(is_train),is_train)
             prediction = self.Prediction(contextual_feature.contiguous(), text, is_train, batch_max_length=self.opt.batch_max_length)
-
+        
         return prediction

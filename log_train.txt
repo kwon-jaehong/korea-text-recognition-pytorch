@@ -1,0 +1,1 @@
+epoch : 0 [0/175723] Train loss: 8.01416,Valid loss: 7.95978, time : 27.695008754730225 lr : 1

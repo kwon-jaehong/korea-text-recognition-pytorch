@@ -8,3 +8,4 @@ font_full
 ./log_val.txt
 ./log_train.txt
 ./log
+*.json
